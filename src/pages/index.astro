@@ -16,7 +16,7 @@ import { juegos, getUltimoSorteo, formatMoney } from '../lib/data';
             <>
               <p class="fecha">Sorteo {ultimo.numero} · {ultimo.fecha}{ultimo.hora ? ` · ${ultimo.hora}` : ''}</p>
               <div class="numeros">
-                {ultimo.numeros.map((n) => <span class="bola">{n.toString().padStart(2, '0)}</span>)}
+                {ultimo.numeros.map((n) => <span class="bola">{n.toString().padStart(2, '0')}</span>)}
                 {ultimo.adicional !== undefined && <span class="bola extra">{ultimo.adicional.toString().padStart(2, '0')} <small>adic.</small></span>}
               </div>
               {ultimo.bolsa_mxn && <p class="bolsa">Bolsa: {formatMoney(ultimo.bolsa_mxn)}</p>}
