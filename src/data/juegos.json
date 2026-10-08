@@ -1,0 +1,100 @@
+{
+  "juegos": [
+    {
+      "slug": "melate",
+      "nombre": "Melate",
+      "operador": "Pronósticos",
+      "formato": "6/56 + adicional",
+      "probabilidad_mayor": "1 entre 32,468,436",
+      "premio_minimo_mxn": 30000000,
+      "dias": ["miercoles", "domingo"],
+      "hora": "21:15",
+      "precio_boleto_mxn": 30,
+      "descripcion": "El juego más popular de México. Seis números del 1 al 56 más un adicional."
+    },
+    {
+      "slug": "melate-revancha",
+      "nombre": "Melate Revancha",
+      "operador": "Pronósticos",
+      "formato": "6/56",
+      "probabilidad_mayor": "1 entre 3,262,623",
+      "premio_minimo_mxn": 20000000,
+      "dias": ["miercoles", "domingo"],
+      "hora": "21:15",
+      "precio_boleto_mxn": 30,
+      "descripcion": "Segunda oportunidad con los mismos números del Melate."
+    },
+    {
+      "slug": "melate-revanchita",
+      "nombre": "Melate Revanchita",
+      "operador": "Pronósticos",
+      "formato": "6/56",
+      "probabilidad_mayor": "1 entre 3,262,623",
+      "premio_minimo_mxn": 20000000,
+      "dias": ["miercoles", "domingo"],
+      "hora": "21:15",
+      "precio_boleto_mxn": 30,
+      "descripcion": "Tercera oportunidad con los mismos números."
+    },
+    {
+      "slug": "melate-retro",
+      "nombre": "Melate Retro",
+      "operador": "Pronósticos",
+      "formato": "6/56 + adicional",
+      "probabilidad_mayor": "1 entre 32,468,436",
+      "premio_minimo_mxn": 5000000,
+      "dias": ["martes", "sabado"],
+      "hora": "21:15",
+      "precio_boleto_mxn": 30,
+      "descripcion": "Melate con números históricos de sorteos pasados."
+    },
+    {
+      "slug": "chispazo",
+      "nombre": "Chispazo Clásico",
+      "operador": "Pronósticos",
+      "formato": "5/28",
+      "probabilidad_mayor": "1 entre 98,280",
+      "premio_minimo_mxn": 10000,
+      "dias": ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"],
+      "hora": "21:15",
+      "precio_boleto_mxn": 10,
+      "descripcion": "Cinco números del 1 al 28. Sorteo diario."
+    },
+    {
+      "slug": "chispazo-de-las-tres",
+      "nombre": "Chispazo De las Tres",
+      "operador": "Pronósticos",
+      "formato": "5/28",
+      "probabilidad_mayor": "1 entre 98,280",
+      "premio_minimo_mxn": 10000,
+      "dias": ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"],
+      "hora": "15:00",
+      "precio_boleto_mxn": 10,
+      "descripcion": "Chispazo de la tarde."
+    },
+    {
+      "slug": "tris",
+      "nombre": "Tris",
+      "operador": "Pronósticos",
+      "formato": "5 dígitos",
+      "probabilidad_mayor": "1 entre 100,000",
+      "premio_minimo_mxn": 50000,
+      "dias": ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"],
+      "hora": "12:00, 15:00, 17:00, 19:00, 21:15",
+      "precio_boleto_mxn": 10,
+      "descripcion": "Cinco sorteos diarios. El más frecuente."
+    },
+    {
+      "slug": "gana-gato",
+      "nombre": "Gana Gato",
+      "operador": "Pronósticos",
+      "formato": "8 dígitos",
+      "probabilidad_mayor": "1 entre 390,625",
+      "premio_minimo_mxn": 300000,
+      "dias": ["martes", "jueves", "sabado"],
+      "hora": "21:00",
+      "precio_boleto_mxn": 20,
+      "descripcion": "Ocho dígitos. Sorteo tres veces por semana."
+    }
+  ]
+}
