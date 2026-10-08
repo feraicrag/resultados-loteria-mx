@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import { getJuego, getSorteosByJuego } from '../lib/data';
+
+export function getStaticPaths() {
+  return ['melate', 'melate-revancha', 'melate-revanchita', 'melate-retro', 'chispazo', 'chispazo-de-las-tres', 'tris', 'gana-gato'].map((juego) => ({ params: { juego } }));
+}
+
+const { juego } = Astro.params;
+const j = getJuego(juego!);
+if (!j) return Astro.redirect('/404/);
+const lista = getSorteosByJuego(juego!);
+
+const freq = new Map<number, number>();
+for (const s of lista) for (const n of s.numeros) freq.set(n, (freq.get(n) ?? 0) + 1);
+const ranked = [...freq.entries()].sort((a, b) => b[1] - a[1]);
+const hot = ranked.slice(0, 6);
+const cold = ranked.slice(-6).reverse();
+---
+<Base title={`Estadísticas ${j.nombre}`}
+  description={`Números calientes y fríos de ${j.nombre} según el historial de sorteos. Frecuencia real, no predicción.`}
+>
+  <p class="crumb"><a href="/{juego}/"← {j.nombre}</a></p>
+  <h1>Estadísticas de {j.nombre}</h1>
+  <p class="desc">Basado en {lista.length} sorteos registrados. La frecuencia pasada no cambia la probabilidad futura.</p>
+  <div class="cols">
+    <section>
+      <h2>Números calientes</h2>
+      <ol>{hot.map(([n, c]) => <li><span>{n.toString().padStart(2, '0)}</span> <small>{c} veces</small></li>)}</ol>
+    </section>
+    <section>
+      <h2>Números fríos</h2>
+      <ol>{cold.map(([n, c]) => <li><span>{n.toString().padStart(2, '0)}</span> <small>{c} veces</small></li>)}</ol>
+    </section>
+  </div>
+</Base>
+<style>
+  .crumb a { color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+  h1 { margin: 0.5rem 0; }
+  .desc { color: var(--muted); margin-bottom: 1.5rem; }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+  section { background: var(--card); border-radius: 12px; padding: 1.25rem; }
+  h2 { font-size: 1rem; margin-bottom: 0.75rem; }
+  ol { list-style: none; }
+  li { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #334155; }
+  li span { font-weight: 700; }
+  li small { color: var(--muted); }
+</style>
