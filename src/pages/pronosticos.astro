@@ -25,7 +25,7 @@ const sugerencias = juegos.map((j) => {
   <p class="desc">Combinaciones armadas con los números que más han salido. No predicen nada: cada sorteo es 100% aleatorio.</p>
   {sugerencias.map((s) => (
     <section>
-      <h2><a href={`/${s.juego.slug}/`→{s.juego.nombre}</a></h2>
+      <h2><a href={`/${s.juego.slug}/`}>{s.juego.nombre}</a></h2>
       <ul>
         {s.pick.map((c) => <li>{c.join(' – ')}</li>)}
       </ul>
