@@ -14,7 +14,7 @@ const porDia = Object.fromEntries(dias.map((d) => [d, juegos.filter((j) => j.dia
         <h2>{d.charAt(0).toUpperCase() + d.slice(1)}</h2>
         <ul>
           {porDia[d].map((j) => (
-            <li><a href={`/${j.slug}/`→{j.nombre}</a> <span>{j.hora}</span></li>
+            <li><a href={`/${j.slug}/`}>{j.nombre}</a> <span>{j.hora}</span></li>
           ))}
         </ul>
       </section>
