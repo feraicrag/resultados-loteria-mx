@@ -1,6 +1,6 @@
 ---
-import Base from '../layouts/Base.astro';
-import { getJuego, getSorteosByJuego, formatMoney } from '../lib/data';
+import Base from '../../layouts/Base.astro';
+import { getJuego, getSorteosByJuego, formatMoney } from '../../lib/data';
 
 export function getStaticPaths() {
   return ['melate', 'melate-revancha', 'melate-revanchita', 'melate-retro', 'chispazo', 'chispazo-de-las-tres', 'tris', 'gana-gato'].map((juego) => ({ params: { juego } }));
@@ -8,7 +8,7 @@ export function getStaticPaths() {
 
 const { juego } = Astro.params;
 const j = getJuego(juego!);
-if (!j) return Astro.redirect('/404/);
+if (!j) return Astro.redirect('/404/');
 const lista = getSorteosByJuego(juego!);
 ---
 <Base title={j.nombre} description={j.descripcion}>
@@ -31,8 +31,8 @@ const lista = getSorteosByJuego(juego!);
   <ul class="lista">
     {lista.slice(0, 10).map((s) => (
       <li>
-        <a href={`sorteo-${s.numero}/`}
-          >Sorteo {s.numero} · {s.fecha}{s.hora ? ` · ${s.hora}` : ''}
+        <a href={`sorteo-${s.numero}/`}>
+          Sorteo {s.numero} · {s.fecha}{s.hora ? ` · ${s.hora}` : ''}
         </a>
         <span class="nums">{s.numeros.join(' – ')}{s.adicional !== undefined ? ` + ${s.adicional}` : ''}</span>
         {s.bolsa_mxn && <span class="bolsa">{formatMoney(s.bolsa_mxn)}</span>}
