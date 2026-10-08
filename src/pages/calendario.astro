@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import { juegos } from '../lib/data';
+
+const dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+const porDia = Object.fromEntries(dias.map((d) => [d, juegos.filter((j) => j.dias.includes(d))]));
+---
+<Base title="Calendario de sorteos">
+  <h1>Calendario semanal</h1>
+  <p class="desc">Todos los sorteos de la semana: Tris cinco veces al día, Chispazo diario, Melate miércoles y domingo.</p>
+  <div class="semana">
+    {dias.map((d) => (
+      <section>
+        <h2>{d.charAt(0).toUpperCase() + d.slice(1)}</h2>
+        <ul>
+          {porDia[d].map((j) => (
+            <li><a href={`/${j.slug}/`→{j.nombre}</a> <span>{j.hora}</span></li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+</Base>
+<style>
+  h1 { margin-bottom: 0.5rem; }
+  .desc { color: var(--muted); margin-bottom: 2rem; }
+  .semana { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+  section { background: var(--card); border-radius: 12px; padding: 1rem; }
+  h2 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--accent); }
+  ul { list-style: none; }
+  li { padding: 0.3rem 0; display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.9rem; }
+  a { color: var(--text); text-decoration: none; }
+  a:hover { color: var(--accent); }
+  span { color: var(--muted); }
+</style>
