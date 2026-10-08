@@ -1,6 +1,6 @@
 ---
-import Base from '../layouts/Base.astro';
-import { getJuego, getSorteosByJuego } from '../lib/data';
+import Base from '../../layouts/Base.astro';
+import { getJuego, getSorteosByJuego } from '../../lib/data';
 
 export function getStaticPaths() {
   return ['melate', 'melate-revancha', 'melate-revanchita', 'melate-retro', 'chispazo', 'chispazo-de-las-tres', 'tris', 'gana-gato'].map((juego) => ({ params: { juego } }));
@@ -8,7 +8,7 @@ export function getStaticPaths() {
 
 const { juego } = Astro.params;
 const j = getJuego(juego!);
-if (!j) return Astro.redirect('/404/);
+if (!j) return Astro.redirect('/404/');
 const lista = getSorteosByJuego(juego!);
 
 const freq = new Map<number, number>();
@@ -20,17 +20,17 @@ const cold = ranked.slice(-6).reverse();
 <Base title={`Estadísticas ${j.nombre}`}
   description={`Números calientes y fríos de ${j.nombre} según el historial de sorteos. Frecuencia real, no predicción.`}
 >
-  <p class="crumb"><a href="/{juego}/"← {j.nombre}</a></p>
+  <p class="crumb"><a href={`/${juego}/`}>{j.nombre}</a></p>
   <h1>Estadísticas de {j.nombre}</h1>
   <p class="desc">Basado en {lista.length} sorteos registrados. La frecuencia pasada no cambia la probabilidad futura.</p>
   <div class="cols">
     <section>
       <h2>Números calientes</h2>
-      <ol>{hot.map(([n, c]) => <li><span>{n.toString().padStart(2, '0)}</span> <small>{c} veces</small></li>)}</ol>
+      <ol>{hot.map(([n, c]) => <li><span>{n.toString().padStart(2, '0')}</span> <small>{c} veces</small></li>)}</ol>
     </section>
     <section>
       <h2>Números fríos</h2>
-      <ol>{cold.map(([n, c]) => <li><span>{n.toString().padStart(2, '0)}</span> <small>{c} veces</small></li>)}</ol>
+      <ol>{cold.map(([n, c]) => <li><span>{n.toString().padStart(2, '0')}</span> <small>{c} veces</small></li>)}</ol>
     </section>
   </div>
 </Base>
