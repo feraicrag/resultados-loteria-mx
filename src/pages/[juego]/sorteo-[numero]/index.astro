@@ -1,6 +1,6 @@
 ---
-import Base from '../layouts/Base.astro';
-import { getJuego, getSorteosByJuego, formatMoney } from '../lib/data';
+import Base from '../../../layouts/Base.astro';
+import { getJuego, getSorteosByJuego, formatMoney } from '../../../lib/data';
 
 export function getStaticPaths() {
   const paths = [];
@@ -15,16 +15,16 @@ export function getStaticPaths() {
 const { juego, numero } = Astro.params;
 const j = getJuego(juego!);
 const s = getSorteosByJuego(juego!).find((x) => x.numero === Number(numero));
-if (!j || !s) return Astro.redirect('/404/);
+if (!j || !s) return Astro.redirect('/404/');
 ---
 <Base title={`Sorteo ${s.numero} ${j.nombre}`}
   description={`Resultado del sorteo ${s.numero} de ${j.nombre} del ${s.fecha}: ${s.numeros.join(', ')}${s.adicional !== undefined ? ` + ${s.adicional}` : ''}.`}
 >
-  <p class="crumb"><a href="/{juego}/"← {j.nombre}</a></p>
+  <p class="crumb"><a href={`/${juego}/`}>{j.nombre}</a></p>
   <h1>Sorteo {s.numero} · {s.fecha}{s.hora ? ` · ${s.hora}` : ''}</h1>
   {s.nombre && <p class="nombre">{s.nombre}</p>}
   <div class="numeros">
-    {s.numeros.map((n) => <span class="bola">{n.toString().padStart(2, '0)}</span>)}
+    {s.numeros.map((n) => <span class="bola">{n.toString().padStart(2, '0')}</span>)}
     {s.adicional !== undefined && <span class="bola extra">{s.adicional.toString().padStart(2, '0')} <small>adic.</small></span>}
   </div>
   {s.bolsa_mxn && <p class="bolsa">Bolsa acumulada: {formatMoney(s.bolsa_mxn)}</p>}
