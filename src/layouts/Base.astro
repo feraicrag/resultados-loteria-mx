@@ -1,0 +1,63 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = 'Resultados de lotería de México: Melate, Chispazo, Tris, Gana Gato. Números ganadores oficiales de Lotenal y Pronósticos.' } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <meta name="description" content={description} />
+  <title>{title} | Resultados Lotería MX</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/" class="logo">Resultados Lotería MX</a>
+      <a href="/calendario">Calendario</a>
+      <a href="/pronosticos">Pronósticos</a>
+    </nav>
+  </header>
+  <main>
+    <slot />
+  </main>
+  <footer>
+    <p>Datos informativos de Lotenal y Pronósticos. No somos una institución oficial.</p>
+  </footer>
+</body>
+</html>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f1f5f9;
+    --accent: #f59e0b;
+    --muted: #94a3b8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header {
+    border-bottom: 1px solid #334155;
+    padding: 1rem 1.5rem;
+    position: sticky;
+    top: 0;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(8px);
+    z-index: 10;
+  }
+  nav { max-width: 1100px; margin: 0 auto; display: flex; gap: 1.5rem; align-items: center; }
+  .logo { font-weight: 700; color: var(--accent); text-decoration: none; font-size: 1.1rem; }
+  nav a { color: var(--muted); text-decoration: none; }
+  nav a:hover { color: var(--text); }
+  main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.85rem; }
+</style>
