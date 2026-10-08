@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0f172a"/>
+  <rect x="0" y="0" width="1200" height="8" fill="#f59e0b"/>
+  <text x="80" y="200" fill="#f59e0b" font-family="system-ui,sans-serif" font-size="28" font-weight="700">RESULTADOS LOTERÍA MX</text>
+  <text x="80" y="300" fill="#f1f5f9" font-family="system-ui,sans-serif" font-size="64" font-weight="700">Melate · Chispazo · Tris</text>
+  <text x="80" y="390" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="36">Números ganadores de hoy</text>
+  <text x="80" y="560" fill="#64748b" font-family="system-ui,sans-serif" font-size="24">resultados-loteria-mx.vercel.app</text>
+</svg>
