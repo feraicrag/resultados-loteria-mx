@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+import { getJuego, getSorteosByJuego, formatMoney } from '../lib/data';
+
+export function getStaticPaths() {
+  return ['melate', 'melate-revancha', 'melate-revanchita', 'melate-retro', 'chispazo', 'chispazo-de-las-tres', 'tris', 'gana-gato'].map((juego) => ({ params: { juego } }));
+}
+
+const { juego } = Astro.params;
+const j = getJuego(juego!);
+if (!j) return Astro.redirect('/404/);
+const lista = getSorteosByJuego(juego!);
+---
+<Base title={j.nombre} description={j.descripcion}>
+  <h1>{j.nombre}</h1>
+  <p class="desc">{j.descripcion}</p>
+  <dl class="info">
+    <div><dt>Operador</dt><dd>{j.operador}</dd></div>
+    <div><dt>Formato</dt><dd>{j.formato}</dd></div>
+    <div><dt>Probabilidad mayor</dt><dd>{j.probabilidad_mayor}</dd></div>
+    <div><dt>Premio mínimo</dt><dd>{formatMoney(j.premio_minimo_mxn)}</dd></div>
+    <div><dt>Días</dt><dd>{j.dias.join(', ')}</dd></div>
+    <div><dt>Hora</dt><dd>{j.hora}</dd></div>
+    <div><dt>Precio boleto</dt><dd>{j.precio_boleto_mxn} MXN</dd></div>
+  </dl>
+  <div class="links">
+    <a href="resultados">Resultados</a>
+    <a href="estadisticas">Estadísticas</a>
+  </div>
+  <h2>Últimos sorteos</h2>
+  <ul class="lista">
+    {lista.slice(0, 10).map((s) => (
+      <li>
+        <a href={`sorteo-${s.numero}/`}
+          >Sorteo {s.numero} · {s.fecha}{s.hora ? ` · ${s.hora}` : ''}
+        </a>
+        <span class="nums">{s.numeros.join(' – ')}{s.adicional !== undefined ? ` + ${s.adicional}` : ''}</span>
+        {s.bolsa_mxn && <span class="bolsa">{formatMoney(s.bolsa_mxn)}</span>}
+      </li>
+    ))}
+  </ul>
+</Base>
+<style>
+  h1 { margin-bottom: 0.25rem; }
+  .desc { color: var(--muted); margin-bottom: 1.5rem; }
+  .info { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+  .info div { background: var(--card); border-radius: 8px; padding: 0.75rem; }
+  .info dt { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; }
+  .info dd { font-weight: 600; }
+  .links { display: flex; gap: 1rem; margin-bottom: 2rem; }
+  .links a { color: var(--accent); }
+  .lista { list-style: none; }
+  .lista li { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid #334155; }
+  .lista a { color: var(--text); text-decoration: none; font-weight: 600; }
+  .lista a:hover { color: var(--accent); }
+  .nums { color: var(--muted); font-size: 0.9rem; }
+  .bolsa { color: var(--accent); font-weight: 600; margin-left: auto; }
+</style>
