@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import { getJuego, getSorteosByJuego, formatMoney } from '../lib/data';
+
+export function getStaticPaths() {
+  const paths = [];
+  for (const slug of ['melate', 'melate-revancha', 'melate-revanchita', 'melate-retro', 'chispazo', 'chispazo-de-las-tres', 'tris', 'gana-gato']) {
+    for (const s of getSorteosByJuego(slug)) {
+      paths.push({ params: { juego: slug, numero: String(s.numero) } });
+    }
+  }
+  return paths;
+}
+
+const { juego, numero } = Astro.params;
+const j = getJuego(juego!);
+const s = getSorteosByJuego(juego!).find((x) => x.numero === Number(numero));
+if (!j || !s) return Astro.redirect('/404/);
+---
+<Base title={`Sorteo ${s.numero} ${j.nombre}`}
+  description={`Resultado del sorteo ${s.numero} de ${j.nombre} del ${s.fecha}: ${s.numeros.join(', ')}${s.adicional !== undefined ? ` + ${s.adicional}` : ''}.`}
+>
+  <p class="crumb"><a href="/{juego}/"← {j.nombre}</a></p>
+  <h1>Sorteo {s.numero} · {s.fecha}{s.hora ? ` · ${s.hora}` : ''}</h1>
+  {s.nombre && <p class="nombre">{s.nombre}</p>}
+  <div class="numeros">
+    {s.numeros.map((n) => <span class="bola">{n.toString().padStart(2, '0)}</span>)}
+    {s.adicional !== undefined && <span class="bola extra">{s.adicional.toString().padStart(2, '0')} <small>adic.</small></span>}
+  </div>
+  {s.bolsa_mxn && <p class="bolsa">Bolsa acumulada: {formatMoney(s.bolsa_mxn)}</p>}
+  <dl class="info">
+    <div><dt>Formato</dt><dd>{j.formato}</dd></div>
+    <div><dt>Probabilidad mayor</dt><dd>{j.probabilidad_mayor}</dd></div>
+    <div><dt>Premio mínimo</dt><dd>{formatMoney(j.premio_minimo_mxn)}</dd></div>
+  </dl>
+  <p class="aviso">Verifica tu boleto en el sitio oficial de {j.operador}. Los premios se cobran con el boleto físico.</p>
+</Base>
+<style>
+  .crumb a { color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+  h1 { margin: 0.5rem 0; }
+  .nombre { color: var(--muted); margin-bottom: 1rem; }
+  .numeros { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+  .bola {
+    background: var(--accent); color: #0f172a; font-weight: 700;
+    border-radius: 50%; width: 2.5rem; height: 2.5rem;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .bola.extra { background: #64748b; color: var(--text); border-radius: 999px; width: auto; padding: 0 0.75rem; }
+  .bola small { font-weight: 400; font-size: 0.7rem; }
+  .bolsa { color: var(--accent); font-weight: 700; font-size: 1.2rem; margin-bottom: 1.5rem; }
+  .info { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+  .info div { background: var(--card); border-radius: 8px; padding: 0.75rem; }
+  .info dt { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; }
+  .info dd { font-weight: 600; }
+  .aviso { color: var(--muted); font-size: 0.85rem; }
+</style>
