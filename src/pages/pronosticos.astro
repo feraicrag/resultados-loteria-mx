@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import { juegos, getSorteosByJuego } from '../lib/data';
+
+function combinar(nums: number[], k: number): number[][] {
+  if (k === 0) return [[]];
+  if (nums.length < k) return [];
+  const [first, ...rest] = nums;
+  return combinar(rest, k - 1).map((c) => [first, ...c]).concat(combinar(rest, k));
+}
+
+const sugerencias = juegos.map((j) => {
+  const lista = getSorteosByJuego(j.slug);
+  const freq = new Map<number, number>();
+  for (const s of lista) for (const n of s.numeros) freq.set(n, (freq.get(n) ?? 0) + 1);
+  const hot = [...freq.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12).map(([n]) => n);
+  const pick = combinar(hot, 6).slice(0, 3).map((c) => c.sort((a, b) => a - b));
+  return { juego: j, pick };
+});
+---
+<Base title="Pronósticos"
+  description="Combinaciones sugeridas basadas en números frecuentes históricos. Solo entretenimiento: cada sorteo es independiente."
+>
+  <h1>Pronósticos sugeridos</h1>
+  <p class="desc">Combinaciones armadas con los números que más han salido. No predicen nada: cada sorteo es 100% aleatorio.</p>
+  {sugerencias.map((s) => (
+    <section>
+      <h2><a href={`/${s.juego.slug}/`→{s.juego.nombre}</a></h2>
+      <ul>
+        {s.pick.map((c) => <li>{c.join(' – ')}</li>)}
+      </ul>
+    </section>
+  ))}
+</Base>
+<style>
+  h1 { margin-bottom: 0.5rem; }
+  .desc { color: var(--muted); margin-bottom: 2rem; }
+  section { background: var(--card); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  h2 { font-size: 1rem; margin-bottom: 0.5rem; }
+  h2 a { color: var(--text); text-decoration: none; }
+  h2 a:hover { color: var(--accent); }
+  ul { list-style: none; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  li { background: #0f172a; border-radius: 8px; padding: 0.4rem 0.75rem; font-weight: 600; }
+</style>
