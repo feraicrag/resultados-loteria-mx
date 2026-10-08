@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import { getJuego, getSorteosByJuego, formatMoney } from '../lib/data';
+
+export function getStaticPaths() {
+  return ['melate', 'melate-revancha', 'melate-revanchita', 'melate-retro', 'chispazo', 'chispazo-de-las-tres', 'tris', 'gana-gato'].map((juego) => ({ params: { juego } }));
+}
+
+const { juego } = Astro.params;
+const j = getJuego(juego!);
+if (!j) return Astro.redirect('/404/);
+const lista = getSorteosByJuego(juego!);
+---
+<Base title={`Resultados ${j.nombre}`}
+  description={`Historial completo de resultados de ${j.nombre}: números ganadores de todos los sorteos. ${j.descripcion}`}
+>
+  <p class="crumb"><a href="/{juego}/"← {j.nombre}</a></p>
+  <h1>Resultados de {j.nombre}</h1>
+  <p class="desc">Archivo de sorteos con números ganadores, fechas y bolsas.</p>
+  <table>
+    <thead>
+      <tr><th>Sorteo</th><th>Fecha</th><th>Números</th><th>Bolsa</th></tr>
+    </thead>
+    <tbody>
+      {lista.map((s) => (
+        <tr>
+          <td><a href={`sorteo-${s.numero}/`→Sorteo {s.numero}</a></td>
+          <td>{s.fecha}{s.hora ? ` ${s.hora}` : ''}</td>
+          <td>{s.numeros.join(' – ')}{s.adicional !== undefined ? ` + ${s.adicional}` : ''}</td>
+          <td>{s.bolsa_mxn ? formatMoney(s.bolsa_mxn) : '—'}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</Base>
+<style>
+  .crumb a { color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+  h1 { margin: 0.5rem 0; }
+  .desc { color: var(--muted); margin-bottom: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 0.6rem 0.4rem; border-bottom: 1px solid #334155; font-size: 0.9rem; }
+  th { color: var(--muted); font-weight: 500; }
+  a { color: var(--accent); text-decoration: none; }
+</style>
