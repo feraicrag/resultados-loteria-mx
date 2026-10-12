@@ -1,84 +1,104 @@
 /**
- * Daily scraper: fetches latest draw results and merges into src/data/resultados.json.
- * If live endpoints fail, keeps seed data and exits 0 so the workflow does not fail.
+ * Scraper: downloads official historical CSVs published by Lotería Nacional / Pronósticos
+ * (https://www.loterianacional.gob.mx/DatosAbiertos/NumerosGanadores) and rebuilds
+ * src/data/resultados.json with the last MONTHS months of draws per game.
+ * Exits non-zero if any source fails or returns zero draws.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const OUT = path.resolve('src/data/resultados.json');
+const BASE = 'https://www.loterianacional.gob.mx/Documentos/Historicos/';
+const MONTHS = Number(process.env.MONTHS || 12);
 
-const ENDPOINTS = [
-  'https://www.loterianacional.gob.mx/api/resultados/ultimos',
-  'https://www.pronosticos.gob.mx/api/resultados/ultimos',
+// file, slug, number of result columns, has adicional (last result column), has BOLSA
+const SOURCES = [
+  { file: 'Melate.csv', slug: 'melate', n: 6, adicional: true },
+  { file: 'Revancha.csv', slug: 'melate-revancha', n: 6 },
+  { file: 'Revanchita.csv', slug: 'melate-revanchita', n: 6 },
+  { file: 'Melate-Retro.csv', slug: 'melate-retro', n: 6, adicional: true },
+  { file: 'Chispazo.csv', slug: 'chispazo', n: 5 },
+  { file: 'Tris.csv', slug: 'tris', n: 5 },
+  { file: 'GanaGato.csv', slug: 'gana-gato', n: 8 },
 ];
 
-async function fetchJson(url) {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 15000);
-  try {
-    const res = await fetch(url, {
-      signal: ctrl.signal,
-      headers: {
-        'User-Agent': 'resultados-loteria-mx/1.0 (+https://github.com/feraicrag/resultados-loteria-mx)',
-      },
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(t);
+async function fetchText(url) {
+  for (let i = 0; i < 3; i++) {
+    try {
+      const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 resultados-loteria-mx' } });
+      const txt = await res.text();
+      if (res.ok && !txt.trimStart().startsWith('<')) return txt;
+      console.error(`bad response ${res.status} from ${url}`);
+    } catch (e) {
+      console.error(`fetch error ${url}: ${e.message}`);
+    }
+    await new Promise((r) => setTimeout(r, 3000));
   }
+  return null;
 }
 
-function normalize(raw) {
-  if (!raw) return null;
-  const list = Array.isArray(raw) ? raw : raw.sorteos || raw.resultados || [];
-  if (!Array.isArray(list) || list.length === 0) return null;
-  return list
-    .map((s) => ({
-      juego: String(s.juego || s.game || '').toLowerCase().replace(/\s+/g, '-'),
-      numero: Number(s.numero || s.draw || s.sorteo),
-      fecha: String(s.fecha || s.date || '').slice(0, 10),
-      hora: s.hora || s.time || undefined,
-      nombre: s.nombre || s.name || undefined,
-      numeros: (s.numeros || s.numbers || []).map(Number),
-      adicional: s.adicional != null ? Number(s.adicional) : undefined,
-      bolsa_mxn: s.bolsa_mxn != null ? Number(s.bolsa_mxn) : undefined,
-      ganadores_6: s.ganadores_6 != null ? Number(s.ganadores_6) : undefined,
-      ganadores_5: s.ganadores_5 != null ? Number(s.ganadores_5) : undefined,
-      ganadores_8: s.ganadores_8 != null ? Number(s.ganadores_8) : undefined,
-    }))
-    .filter((s) => s.juego && s.numero && s.fecha && s.numeros.length > 0)
-    .sort((a, b) => b.numero - a.numero);
+function toIso(d) {
+  const [dd, mm, yyyy] = d.trim().split('/');
+  return `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+}
+
+function parse(src, txt, cutoff) {
+  const lines = txt.replace(/^\uFEFF/, '').split(/\r?\n/).filter(Boolean);
+  const head = lines[0].split(',').map((h) => h.trim().toUpperCase());
+  const iC = head.indexOf('CONCURSO');
+  const iF = head.indexOf('FECHA');
+  const iB = head.indexOf('BOLSA');
+  const iR = head.findIndex((h) => /^[RF]1$/.test(h));
+  if (iC < 0 || iF < 0 || iR < 0) throw new Error(`unexpected header in ${src.file}: ${lines[0]}`);
+  const out = [];
+  for (const line of lines.slice(1)) {
+    const c = line.split(',');
+    const fecha = toIso(c[iF]);
+    if (fecha < cutoff) continue;
+    const vals = c.slice(iR, iR + src.n + (src.adicional ? 1 : 0)).map(Number);
+    if (vals.some((v) => !Number.isFinite(v))) continue;
+    const s = { juego: src.slug, numero: Number(c[iC]), fecha, numeros: vals.slice(0, src.n) };
+    if (src.adicional) s.adicional = vals[src.n];
+    if (iB >= 0 && Number(c[iB]) > 0) s.bolsa_mxn = Number(c[iB]);
+    out.push(s);
+  }
+  return out;
+}
+
+// Chispazo.csv mixes both daily draws. When a date has two draws, the lower
+// concurso is the earlier one (Chispazo de las Tres) and the higher is the Clásico.
+function splitChispazo(list) {
+  const byDate = new Map();
+  for (const s of list) (byDate.get(s.fecha) || byDate.set(s.fecha, []).get(s.fecha)).push(s);
+  for (const arr of byDate.values()) {
+    if (arr.length < 2) continue;
+    arr.sort((a, b) => a.numero - b.numero);
+    arr[0].juego = 'chispazo-de-las-tres';
+  }
+  return list;
 }
 
 async function main() {
-  let incoming = null;
-  for (const url of ENDPOINTS) {
-    const raw = await fetchJson(url);
-    incoming = normalize(raw);
-    if (incoming) {
-      console.log(`OK: ${url} -> ${incoming.length} sorteos`);
-      break;
-    }
-    console.log(`miss: ${url}`);
+  const d = new Date();
+  d.setMonth(d.getMonth() - MONTHS);
+  const cutoff = d.toISOString().slice(0, 10);
+  const all = [];
+  const failed = [];
+  for (const src of SOURCES) {
+    const txt = await fetchText(BASE + src.file);
+    let rows = txt ? parse(src, txt, cutoff) : [];
+    if (src.slug === 'chispazo') rows = splitChispazo(rows);
+    console.log(`${src.file}: ${rows.length} sorteos`);
+    if (rows.length === 0) failed.push(src.file);
+    all.push(...rows);
   }
-
-  const existing = JSON.parse(await fs.readFile(OUT, 'utf8'));
-  const prev = existing.sorteos || [];
-
-  if (!incoming) {
-    console.log('No live data; keeping seed. Nothing to commit.');
-    return;
+  if (failed.length) {
+    console.error(`FAIL: no data from ${failed.join(', ')}`);
+    process.exit(1);
   }
-
-  const byKey = new Map(prev.map((s) => [s.juego + '#' + s.numero, s]));
-  for (const s of incoming) byKey.set(s.juego + '#' + s.numero, s);
-  const merged = [...byKey.values()].sort((a, b) => b.numero - a.numero).slice(0, 200);
-
-  await fs.writeFile(OUT, JSON.stringify({ sorteos: merged }, null, 2) + '\n', 'utf8');
-  console.log(`Merged: ${prev.length} -> ${merged.length} sorteos`);
+  all.sort((a, b) => (a.juego === b.juego ? b.numero - a.numero : a.juego.localeCompare(b.juego)));
+  await fs.writeFile(OUT, JSON.stringify({ fuente: BASE, sorteos: all }) + '\n', 'utf8');
+  console.log(`Wrote ${all.length} sorteos since ${cutoff}`);
 }
 
 main().catch((e) => {
