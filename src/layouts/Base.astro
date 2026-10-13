@@ -2,8 +2,10 @@
 interface Props {
   title: string;
   description?: string;
+  jsonLd?: Record<string, unknown>[];
 }
-const { title, description = 'Resultados de lotería de México: Melate, Chispazo, Tris, Gana Gato. Números ganadores oficiales de Lotenal y Pronósticos.' } = Astro.props;
+import { ADS_CLIENT, SITE } from '../lib/config';
+const { title, jsonLd = [], description = 'Resultados de lotería de México: Melate, Chispazo, Tris, Gana Gato. Números ganadores oficiales de Lotenal y Pronósticos.' } = Astro.props;
 ---
 <!DOCTYPE html>
 <html lang="es-MX">
@@ -12,6 +14,9 @@ const { title, description = 'Resultados de lotería de México: Melate, Chispaz
   <meta name="viewport" content="width=device-width" />
   <meta name="description" content={description} />
   <title>{title} | Resultados Lotería MX</title>
+  <link rel="canonical" href={new URL(Astro.url.pathname, SITE).toString()} />
+  <script type="application/ld+json" set:html={JSON.stringify([{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'Resultados Lotería MX', url: SITE + '/', inLanguage: 'es-MX' }, ...jsonLd.map((o) => ({ '@context': 'https://schema.org', ...o }))])} />
+  {ADS_CLIENT && <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADS_CLIENT}`} crossorigin="anonymous"></script>}
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 </head>
 <body>
@@ -20,6 +25,7 @@ const { title, description = 'Resultados de lotería de México: Melate, Chispaz
       <a href="/" class="logo">Resultados Lotería MX</a>
       <a href="/calendario">Calendario</a>
       <a href="/pronosticos">Pronósticos</a>
+      <a href="/verificador/">Verificador</a>
     </nav>
   </header>
   <main>

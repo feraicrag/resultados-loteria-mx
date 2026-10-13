@@ -27,7 +27,7 @@ const lista = getSorteosByJuego(juego!);
           <td><a href={`sorteo-${s.numero}/`}>Sorteo {s.numero}</a></td>
           <td>{s.fecha}{s.hora ? ` ${s.hora}` : ''}</td>
           <td>{s.numeros.join(' – ')}{s.adicional !== undefined ? ` + ${s.adicional}` : ''}</td>
-          <td>{s.bolsa_mxn ? formatMoney(s.bolsa_mxn) : '—'}</td>
+          <td>{s.bolsa_mxn ? formatMoney(s.bolsa_mxn) : 'N/D'}</td>
         </tr>
       ))}
     </tbody>

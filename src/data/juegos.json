@@ -7,7 +7,7 @@
       "formato": "6/56 + adicional",
       "probabilidad_mayor": "1 entre 32,468,436",
       "premio_minimo_mxn": 30000000,
-      "dias": ["miercoles", "domingo"],
+      "dias": ["miercoles", "viernes", "domingo"],
       "hora": "21:15",
       "precio_boleto_mxn": 30,
       "descripcion": "El juego más popular de México. Seis números del 1 al 56 más un adicional."
@@ -19,7 +19,7 @@
       "formato": "6/56",
       "probabilidad_mayor": "1 entre 3,262,623",
       "premio_minimo_mxn": 20000000,
-      "dias": ["miercoles", "domingo"],
+      "dias": ["miercoles", "viernes", "domingo"],
       "hora": "21:15",
       "precio_boleto_mxn": 30,
       "descripcion": "Segunda oportunidad con los mismos números del Melate."
@@ -31,7 +31,7 @@
       "formato": "6/56",
       "probabilidad_mayor": "1 entre 3,262,623",
       "premio_minimo_mxn": 20000000,
-      "dias": ["miercoles", "domingo"],
+      "dias": ["miercoles", "viernes", "domingo"],
       "hora": "21:15",
       "precio_boleto_mxn": 30,
       "descripcion": "Tercera oportunidad con los mismos números."

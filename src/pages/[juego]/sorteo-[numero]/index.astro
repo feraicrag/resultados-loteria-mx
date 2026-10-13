@@ -1,5 +1,8 @@
 ---
 import Base from '../../../layouts/Base.astro';
+import AlertasCta from '../../../components/AlertasCta.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import { SITE } from '../../../lib/config';
 import { getJuego, getSorteosByJuego, formatMoney } from '../../../lib/data';
 
 export function getStaticPaths() {
@@ -18,6 +21,14 @@ const s = getSorteosByJuego(juego!).find((x) => x.numero === Number(numero));
 if (!j || !s) return Astro.redirect('/404/');
 ---
 <Base title={`Sorteo ${s.numero} ${j.nombre}`}
+  jsonLd={[
+    { '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE + '/' },
+      { '@type': 'ListItem', position: 2, name: j.nombre, item: `${SITE}/${juego}/` },
+      { '@type': 'ListItem', position: 3, name: `Sorteo ${s.numero}`, item: `${SITE}/${juego}/sorteo-${s.numero}/` },
+    ] },
+    { '@type': 'Event', name: `Sorteo ${s.numero} de ${j.nombre}`, startDate: s.fecha, eventStatus: 'https://schema.org/EventScheduled', eventAttendanceMode: 'https://schema.org/OnlineEventAttendanceMode', location: { '@type': 'VirtualLocation', url: 'https://www.loterianacional.gob.mx/' }, organizer: { '@type': 'Organization', name: 'Lotería Nacional', url: 'https://www.loterianacional.gob.mx/' }, description: `Combinación ganadora: ${s.numeros.join(' ')}${s.adicional !== undefined ? ` adicional ${s.adicional}` : ''}.` },
+  ]}
   description={`Resultado del sorteo ${s.numero} de ${j.nombre} del ${s.fecha}: ${s.numeros.join(', ')}${s.adicional !== undefined ? ` + ${s.adicional}` : ''}.`}
 >
   <p class="crumb"><a href={`/${juego}/`}>{j.nombre}</a></p>
@@ -33,6 +44,9 @@ if (!j || !s) return Astro.redirect('/404/');
     <div><dt>Probabilidad mayor</dt><dd>{j.probabilidad_mayor}</dd></div>
     <div><dt>Premio mínimo</dt><dd>{formatMoney(j.premio_minimo_mxn)}</dd></div>
   </dl>
+  <p><a href="/verificador/">Verifica tu boleto</a></p>
+  <AlertasCta />
+  <AdSlot slot={import.meta.env.PUBLIC_ADS_SLOT_SORTEO} />
   <p class="aviso">Verifica tu boleto en el sitio oficial de {j.operador}. Los premios se cobran con el boleto físico.</p>
 </Base>
 <style>

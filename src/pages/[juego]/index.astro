@@ -1,5 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Verificador from '../../components/Verificador.astro';
+import AlertasCta from '../../components/AlertasCta.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { SITE } from '../../lib/config';
 import { getJuego, getSorteosByJuego, formatMoney } from '../../lib/data';
 
 export function getStaticPaths() {
@@ -11,7 +15,7 @@ const j = getJuego(juego!);
 if (!j) return Astro.redirect('/404/');
 const lista = getSorteosByJuego(juego!);
 ---
-<Base title={j.nombre} description={j.descripcion}>
+<Base title={j.nombre} description={j.descripcion} jsonLd={[{ '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE + '/' }, { '@type': 'ListItem', position: 2, name: j.nombre, item: `${SITE}/${juego}/` }] }, { '@type': 'Dataset', name: `Resultados históricos de ${j.nombre}`, description: `Números ganadores de ${j.nombre} publicados por Lotería Nacional.`, url: `${SITE}/${juego}/`, isBasedOn: 'https://www.loterianacional.gob.mx/DatosAbiertos/NumerosGanadores', inLanguage: 'es-MX', temporalCoverage: `${lista[lista.length - 1]?.fecha}/${lista[0]?.fecha}` }]}>
   <h1>{j.nombre}</h1>
   <p class="desc">{j.descripcion}</p>
   <dl class="info">
@@ -27,6 +31,9 @@ const lista = getSorteosByJuego(juego!);
     <a href="resultados">Resultados</a>
     <a href="estadisticas">Estadísticas</a>
   </div>
+  <Verificador juego={juego} />
+  <AlertasCta />
+  <AdSlot slot={import.meta.env.PUBLIC_ADS_SLOT_HUB} />
   <h2>Últimos sorteos</h2>
   <ul class="lista">
     {lista.slice(0, 10).map((s) => (
@@ -34,7 +41,7 @@ const lista = getSorteosByJuego(juego!);
         <a href={`sorteo-${s.numero}/`}>
           Sorteo {s.numero} · {s.fecha}{s.hora ? ` · ${s.hora}` : ''}
         </a>
-        <span class="nums">{s.numeros.join(' – ')}{s.adicional !== undefined ? ` + ${s.adicional}` : ''}</span>
+        <span class="nums">{s.numeros.join(' ')}{s.adicional !== undefined ? ` + ${s.adicional}` : ''}</span>
         {s.bolsa_mxn && <span class="bolsa">{formatMoney(s.bolsa_mxn)}</span>}
       </li>
     ))}
