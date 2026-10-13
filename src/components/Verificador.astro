@@ -1,0 +1,71 @@
+---
+import { juegos, getSorteosByJuego } from '../lib/data';
+import { CATEGORIAS, POSICIONALES } from '../lib/premios';
+interface Props { juego?: string }
+const { juego } = Astro.props;
+const lista = juego ? juegos.filter((j) => j.slug === juego) : juegos;
+const data = Object.fromEntries(
+  lista.map((j) => [j.slug, {
+    nombre: j.nombre,
+    pos: POSICIONALES.includes(j.slug),
+    cats: CATEGORIAS[j.slug] || null,
+    n: getSorteosByJuego(j.slug)[0]?.numeros.length || 6,
+    sorteos: getSorteosByJuego(j.slug).slice(0, 60).map((s) => [s.numero, s.fecha, s.numeros, s.adicional ?? null]),
+  }])
+);
+---
+<section class="verif" aria-labelledby="verif-h">
+  <h2 id="verif-h">Verifica tu boleto</h2>
+  <form data-verif>
+    {lista.length > 1 ? (
+      <label>Juego <select name="juego">{lista.map((j) => <option value={j.slug}>{j.nombre}</option>)}</select></label>
+    ) : <input type="hidden" name="juego" value={lista[0].slug} />}
+    <label>Tus números (separados por espacio o coma) <input name="nums" inputmode="numeric" required placeholder="Ej. 5 12 23 34 41 50" /></label>
+    <label>Número de sorteo (opcional, por defecto el más reciente) <input name="sorteo" inputmode="numeric" /></label>
+    <button type="submit">Verificar</button>
+  </form>
+  <div class="res" aria-live="polite" data-res></div>
+  <p class="disc">Herramienta informativa con los últimos 60 sorteos por juego. No garantiza premios: verifica siempre con tu boleto oficial.</p>
+</section>
+<script type="application/json" data-verif-data set:html={JSON.stringify(data)} />
+<script>
+  document.querySelectorAll<HTMLFormElement>('form[data-verif]').forEach((form) => {
+    const sec = form.closest('section')!;
+    const data = JSON.parse(sec.nextElementSibling!.textContent || '{}');
+    const out = sec.querySelector<HTMLElement>('[data-res]')!;
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const g = data[String(fd.get('juego'))];
+      const nums = String(fd.get('nums')).split(/[^0-9]+/).filter(Boolean).map(Number);
+      const num = Number(fd.get('sorteo')) || 0;
+      const s = num ? g.sorteos.find((x: any) => x[0] === num) : g.sorteos[0];
+      if (!s) { out.textContent = `No tenemos el sorteo ${num} de ${g.nombre} en los últimos 60 sorteos.`; return; }
+      const [n, fecha, win, adic] = s;
+      let msg = `${g.nombre}, sorteo ${n} (${fecha}). Combinación: ${win.join(' ')}${adic != null ? ' + ' + adic : ''}. `;
+      if (g.pos) {
+        if (nums.length !== win.length) { out.textContent = `Ingresa ${win.length} dígitos en orden.`; return; }
+        const hits = nums.filter((v: number, i: number) => v === win[i]).length;
+        msg += `Coincidencias en la misma posición: ${hits} de ${win.length}. Las categorías de premio dependen de la modalidad que jugaste; consúltalas en el sitio oficial.`;
+      } else {
+        const uniq = [...new Set(nums)];
+        if (uniq.length !== g.n) { out.textContent = `Ingresa ${g.n} números distintos.`; return; }
+        const hits = uniq.filter((v) => win.includes(v)).length;
+        const ad = adic != null && uniq.includes(adic);
+        const cat = (g.cats || []).find((c: any) => c.aciertos === hits && (!c.adicional || ad) && (c.adicional || !g.cats.some((o: any) => o.adicional && o.aciertos === hits && ad)));
+        msg += `Aciertos: ${hits}${adic != null ? (ad ? ' más el adicional' : ', sin adicional') : ''}. `;
+        msg += cat ? `Tu combinación coincide con la categoría ${cat.lugar}. El monto depende del sorteo.` : 'Sin categoría de premio según las reglas oficiales.';
+      }
+      out.textContent = msg + ' Verifica siempre con tu boleto oficial.';
+    });
+  });
+</script>
+<style>
+  .verif { background: var(--card); border-radius: 8px; padding: 1rem; margin: 1.5rem 0; }
+  .verif form { display: grid; gap: 0.6rem; margin: 0.75rem 0; }
+  .verif label { display: grid; gap: 0.2rem; font-size: 0.9rem; color: var(--muted); }
+  .verif input, .verif select { padding: 0.5rem; border-radius: 6px; border: 1px solid #334155; background: var(--bg); color: var(--text); }
+  .verif button { padding: 0.6rem; border: 0; border-radius: 6px; background: var(--accent); color: #0f172a; font-weight: 700; cursor: pointer; }
+  .res { font-weight: 600; }
+  .disc { color: var(--muted); font-size: 0.8rem; margin-top: 0.5rem; }
+</style>
