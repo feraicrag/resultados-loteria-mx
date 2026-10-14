@@ -1,60 +1,64 @@
 ---
 import Base from '../layouts/Base.astro';
+import AlertasCta from '../components/AlertasCta.astro';
+import AdSlot from '../components/AdSlot.astro';
 import { juegos, getUltimoSorteo, formatMoney } from '../lib/data';
+const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
+const fmt = (f: string) => new Date(f + 'T12:00:00Z').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).replace(/^./, (c) => c.toUpperCase());
+const cards = juegos
+  .map((j) => ({ j, s: getUltimoSorteo(j.slug) }))
+  .filter((x) => x.s)
+  .sort((a, b) => b.s!.fecha.localeCompare(a.s!.fecha));
 ---
-<Base title="Resultados de hoy">
-  <h1>Resultados de Lotería de México</h1>
-  <p class="lead">Números ganadores de Melate, Chispazo, Tris y Gana Gato. Actualizado tras cada sorteo.</p>
+<Base title="Resultados de hoy" description="Resultados de hoy de Melate, Revancha, Revanchita, Retro, Chispazo, Tris y Gana Gato con datos oficiales de Lotería Nacional.">
+  <section class="hero">
+    <h1>Resultados de la lotería en México</h1>
+    <p>Los números ganadores más recientes de cada juego, con datos oficiales de Lotería Nacional.</p>
+  </section>
   <div class="grid">
-    {juegos.map((j) => {
-      const ultimo = getUltimoSorteo(j.slug);
-      return (
-        <a href={`/${j.slug}/`} class="card">
-          <h2>{j.nombre}</h2>
-          <p class="meta">{j.operador} · {j.formato} · {j.precio_boleto_mxn} MXN</p>
-          {ultimo && (
-            <>
-              <p class="fecha">Sorteo {ultimo.numero} · {ultimo.fecha}{ultimo.hora ? ` · ${ultimo.hora}` : ''}</p>
-              <div class="numeros">
-                {ultimo.numeros.map((n) => <span class="bola">{n.toString().padStart(2, '0')}</span>)}
-                {ultimo.adicional !== undefined && <span class="bola extra">{ultimo.adicional.toString().padStart(2, '0')} <small>adic.</small></span>}
-              </div>
-              {ultimo.bolsa_mxn && <p class="bolsa">Bolsa: {formatMoney(ultimo.bolsa_mxn)}</p>}
-            </>
-          )}
-        </a>
-      );
-    })}
+    {cards.map(({ j, s }) => (
+      <article class={`card g-${j.slug}`}>
+        <header>
+          <h2><a href={`/${j.slug}/`}>{j.nombre}</a></h2>
+          {s!.fecha === hoy ? <span class="badge hoy">Hoy</span> : <span class="badge">{fmt(s!.fecha)}</span>}
+        </header>
+        <p class="meta">Sorteo {s!.numero}{s!.hora ? ` · ${s!.hora}` : ''}</p>
+        <div class="numeros">
+          {s!.numeros.map((n) => <span class="bola">{n.toString().padStart(2, '0')}</span>)}
+          {s!.adicional !== undefined && <span class="bola extra" title="Adicional">{s!.adicional.toString().padStart(2, '0')}</span>}
+        </div>
+        {s!.bolsa_mxn && <p class="bolsa">Bolsa {formatMoney(s!.bolsa_mxn)}</p>}
+        <footer>
+          <a href={`/${j.slug}/sorteo-${s!.numero}/`}>Ver sorteo</a>
+          <a href={`/${j.slug}/resultados/`}>Historial</a>
+        </footer>
+      </article>
+    ))}
   </div>
+  <section class="cta-verif">
+    <div>
+      <h2>¿Le pegaste a algún número?</h2>
+      <p>Escribe tus números y te decimos cuántos aciertos tienes y en qué categoría quedarías.</p>
+    </div>
+    <a href="/verificador/">Verifica tu boleto</a>
+  </section>
+  <AlertasCta />
+  <AdSlot slot={import.meta.env.PUBLIC_ADS_SLOT_HUB} />
 </Base>
 <style>
-  h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-  .lead { color: var(--muted); margin-bottom: 2rem; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-  .card {
-    background: var(--card);
-    border-radius: 12px;
-    padding: 1.25rem;
-    text-decoration: none;
-    color: inherit;
-    border: 1px solid #334155;
-    transition: border-color 0.15s, transform 0.15s;
-  }
-  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .card h2 { font-size: 1.15rem; margin-bottom: 0.25rem; }
-  .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.75rem; }
-  .fecha { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
-  .numeros { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem; }
-  .bola {
-    background: var(--accent);
-    color: #0f172a;
-    font-weight: 700;
-    border-radius: 50%;
-    width: 2rem; height: 2rem;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 0.85rem;
-  }
-  .bola.extra { background: #64748b; color: var(--text); border-radius: 999px; width: auto; padding: 0 0.6rem; }
-  .bola small { font-weight: 400; font-size: 0.65rem; }
-  .bolsa { color: var(--accent); font-weight: 600; font-size: 0.9rem; }
+  .hero { padding: .5rem 0 1.25rem; } .hero p { color: var(--muted); max-width: 60ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1rem; }
+  .card { background: var(--card); border-radius: var(--radius); padding: 1rem 1.1rem; border: 1px solid var(--line); border-top: 5px solid var(--c, var(--red)); display: flex; flex-direction: column; gap: .55rem; }
+  .g-melate { --c: #d62839; } .g-melate-revancha { --c: #1d4ed8; } .g-melate-revanchita { --c: #7c3aed; } .g-melate-retro { --c: #b45309; }
+  .g-chispazo { --c: #f4a62a; } .g-chispazo-de-las-tres { --c: #ea580c; } .g-tris { --c: #0b6e4f; } .g-gana-gato { --c: #db2777; }
+  .card header { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+  .card h2 { margin: 0; font-size: 1.1rem; } .card h2 a { color: var(--text); text-decoration: none; }
+  .badge { font-size: .72rem; font-weight: 700; color: var(--muted); background: var(--bg); border-radius: 999px; padding: .15rem .55rem; white-space: nowrap; }
+  .badge.hoy { background: #dcfce7; color: #166534; }
+  .meta { color: var(--muted); font-size: .85rem; }
+  .bolsa { font-weight: 800; color: var(--brand); }
+  .card footer { display: flex; gap: 1rem; margin-top: auto; padding-top: .5rem; border-top: 1px dashed var(--line); font-size: .88rem; font-weight: 600; }
+  .cta-verif { margin-top: 2rem; background: var(--brand); color: #fff; border-radius: var(--radius); padding: 1.25rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; }
+  .cta-verif h2 { margin: 0 0 .25rem; } .cta-verif p { opacity: .9; }
+  .cta-verif a { background: var(--accent); color: var(--ink-on-accent); font-weight: 800; padding: .7rem 1.1rem; border-radius: 999px; text-decoration: none; }
 </style>
