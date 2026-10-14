@@ -20,50 +20,83 @@ const { title, jsonLd = [], description = 'Resultados de lotería de México: Me
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 </head>
 <body>
-  <header>
-    <nav>
-      <a href="/" class="logo">Resultados Lotería MX</a>
-      <a href="/calendario">Calendario</a>
-      <a href="/pronosticos">Pronósticos</a>
-      <a href="/verificador/">Verificador</a>
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="site">
+    <nav class="wrap">
+      <a href="/" class="logo" aria-label="Resultados Lotería MX, inicio">
+        <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#d62839"/><circle cx="11" cy="11" r="4" fill="#fff" opacity=".35"/><text x="16" y="22" text-anchor="middle" font-weight="800" font-size="16" fill="#fff" font-family="system-ui,sans-serif">7</text></svg>
+        <span>Resultados <b>Lotería</b> <small>MX</small></span>
+      </a>
+      <div class="links">
+        <a href="/verificador/" class="cta">Verifica tu boleto</a>
+        <a href="/calendario/">Calendario</a>
+        <a href="/pronosticos/">Combinaciones</a>
+      </div>
     </nav>
+    <div class="juegos-nav wrap" aria-label="Juegos">
+      <a href="/melate/">Melate</a><a href="/melate-revancha/">Revancha</a><a href="/melate-revanchita/">Revanchita</a><a href="/melate-retro/">Retro</a><a href="/chispazo/">Chispazo</a><a href="/chispazo-de-las-tres/">Chispazo 3</a><a href="/tris/">Tris</a><a href="/gana-gato/">Gana Gato</a>
+    </div>
   </header>
-  <main>
+  <main id="contenido" class="wrap">
     <slot />
   </main>
-  <footer>
-    <p>Datos informativos de Lotenal y Pronósticos. No somos una institución oficial.</p>
+  <footer class="site">
+    <div class="wrap">
+      <p><b>Resultados Lotería MX</b> es un sitio informativo independiente. No somos Lotería Nacional ni Pronósticos.</p>
+      <p>Los resultados provienen de los datos oficiales publicados en loterianacional.gob.mx. Verifica siempre con tu boleto oficial antes de cobrar o tirar un boleto.</p>
+      <p>Juega con responsabilidad. Solo mayores de 18 años.</p>
+      <p class="fl"><a href="/verificador/">Verificador</a> <a href="/calendario/">Calendario</a> <a href="/sitemap.xml">Mapa del sitio</a></p>
+    </div>
   </footer>
 </body>
 </html>
-<style>
+<style is:global>
   :root {
-    --bg: #0f172a;
-    --card: #1e293b;
-    --text: #f1f5f9;
-    --accent: #f59e0b;
-    --muted: #94a3b8;
+    --bg: #f7f4ee; --card: #ffffff; --text: #13213c; --muted: #5b6478; --line: #e6e0d4;
+    --brand: #0b6e4f; --accent: #f4a62a; --ink-on-accent: #13213c; --red: #d62839;
+    --radius: 14px; --shadow: 0 1px 2px rgba(19,33,60,.06), 0 4px 16px rgba(19,33,60,.06);
+    color-scheme: light;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-  }
-  header {
-    border-bottom: 1px solid #334155;
-    padding: 1rem 1.5rem;
-    position: sticky;
-    top: 0;
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(8px);
-    z-index: 10;
-  }
-  nav { max-width: 1100px; margin: 0 auto; display: flex; gap: 1.5rem; align-items: center; }
-  .logo { font-weight: 700; color: var(--accent); text-decoration: none; font-size: 1.1rem; }
-  nav a { color: var(--muted); text-decoration: none; }
-  nav a:hover { color: var(--text); }
-  main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
-  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.85rem; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; font-feature-settings: "tnum"; }
+  a { color: var(--brand); }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.15; letter-spacing: -0.02em; margin: 0.25rem 0 0.75rem; }
+  h2 { font-size: 1.25rem; margin: 2rem 0 0.75rem; letter-spacing: -0.01em; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1rem; }
+  main.wrap { padding-top: 1.25rem; padding-bottom: 3rem; min-height: 60vh; }
+  .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .5rem; z-index: 99; }
+  header.site { background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
+  header.site nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; height: 58px; }
+  .logo { display: flex; align-items: center; gap: .5rem; text-decoration: none; color: var(--text); font-weight: 800; font-size: 1.05rem; letter-spacing: -0.02em; white-space: nowrap; }
+  .logo b { color: var(--brand); } .logo small { font-size: .7rem; background: var(--text); color: #fff; padding: 1px 5px; border-radius: 4px; vertical-align: 2px; }
+  header.site .links { display: flex; gap: 1rem; align-items: center; }
+  header.site .links a { color: var(--muted); text-decoration: none; font-size: .92rem; font-weight: 600; }
+  header.site .links a:hover { color: var(--text); }
+  header.site .links a.cta { background: var(--brand); color: #fff; padding: .45rem .8rem; border-radius: 999px; }
+  .juegos-nav { display: flex; gap: .4rem; overflow-x: auto; padding-bottom: .6rem; scrollbar-width: none; }
+  .juegos-nav a { flex: none; font-size: .85rem; font-weight: 600; text-decoration: none; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: .25rem .75rem; }
+  .juegos-nav a:hover { border-color: var(--brand); }
+  @media (max-width: 640px) { header.site .links a:not(.cta) { display: none; } .logo small { display: none; } }
+  footer.site { background: var(--text); color: #cbd2e1; font-size: .88rem; padding: 2rem 0; }
+  footer.site p { margin-bottom: .6rem; max-width: 70ch; } footer.site b { color: #fff; }
+  footer.site .fl a { color: #fff; margin-right: 1rem; }
+  /* Bolas por juego */
+  .numeros { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+  .bola { --c: var(--red); --t: #fff; width: 2.2rem; height: 2.2rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: .95rem; color: var(--t); background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.55) 0 12%, transparent 13%), var(--c); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); }
+  .bola.sm { width: 1.8rem; height: 1.8rem; font-size: .8rem; }
+  .bola.lg { width: 3rem; height: 3rem; font-size: 1.25rem; }
+  .bola.extra { --c: #fff !important; --t: var(--text) !important; border: 3px solid var(--text); box-shadow: none; }
+  .bola small { display: none; }
+  .g-melate .bola { --c: #d62839; }
+  .g-melate-revancha .bola { --c: #1d4ed8; }
+  .g-melate-revanchita .bola { --c: #7c3aed; }
+  .g-melate-retro .bola { --c: #b45309; }
+  .g-chispazo .bola { --c: #f4a62a; --t: #13213c; }
+  .g-chispazo-de-las-tres .bola { --c: #ea580c; }
+  .g-tris .bola { --c: #0b6e4f; border-radius: 8px; }
+  .g-gana-gato .bola { --c: #db2777; border-radius: 10px; }
+  .card, .info div, .verif, .alertas { box-shadow: var(--shadow); }
+  .crumb { font-size: .85rem; } .crumb a { color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; background: var(--card); border-radius: var(--radius); overflow: hidden; }
 </style>
