@@ -2,8 +2,17 @@ name: Daily Loteria Scrape
 
 on:
   schedule:
-    # 22:30 UTC = 16:30 CST (after evening draws ~21:15 local)
-    - cron: '30 22 * * *'
+    # Horas en CDMX (UTC-6). Los CSV oficiales se regeneran en bloque ~06:00 CDMX (12:00 UTC),
+    # por eso las corridas clave son las de la mañana. Las de después de cada sorteo quedan
+    # por si la fuente empieza a actualizarse antes; si no hay filas nuevas no se hace commit.
+    - cron: '15 12 * * *'   # 06:15 catch-up principal (CSV del día anterior completo)
+    - cron: '0 14 * * *'    # 08:00 catch-up
+    - cron: '40 19 * * *'   # 13:40 tras Tris Medio Día
+    - cron: '40 21 * * *'   # 15:40 tras Tris y Chispazo De las Tres
+    - cron: '40 23 * * *'   # 17:40 tras Tris Extra
+    - cron: '40 1 * * *'    # 19:40 tras Tris De las Siete
+    - cron: '50 3 * * *'    # 21:50 tras Melate, Retro, Gana Gato, Chispazo y Tris Clásico
+    - cron: '30 5 * * *'    # 23:30 catch-up nocturno
   workflow_dispatch:
 
 permissions:
